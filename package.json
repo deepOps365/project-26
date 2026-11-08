@@ -1,0 +1,32 @@
+{
+  "name": "project-26",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0 -p 3026",
+    "build": "next build && node scripts/gen-sw.mjs",
+    "serve": "node scripts/serve.mjs",
+    "phone": "npm run build && npm run serve",
+    "icons": "node scripts/gen-icons.mjs",
+    "test": "tsx scripts/test-engine.ts",
+    "balance": "tsx scripts/balance.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "lucide-react": "^1.70.0",
+    "next": "16.4.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zustand": "^5.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "qrcode-terminal": "^0.12.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.15",
+    "typescript": "^5"
+  }
+}
