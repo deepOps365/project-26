@@ -50,7 +50,7 @@ export default function Stats() {
         <Stat icon="moon" label="Avg sleep" value={avg(sleepVals) == null ? "—" : `${avg(sleepVals)!.toFixed(1)}h`} color="#7c93ff" />
         <Stat icon="eye" label="Avg screen" value={avg(screenVals) == null ? "—" : fmtMinutes(avg(screenVals)!)} color="#46c2f2" />
         <Stat icon="flame" label="Longest streak" value={d.streak.longest} color="#ff9f6b" />
-        <Stat icon="zap" label="Total XP" value={fmtNum(d.totalXp)} color="#f6cb62" />
+        <Stat icon="zap" label="Total XP" value={fmtNum(d.totalXp)} color="var(--color-gold-400)" />
       </div>
 
       <Panel>
@@ -71,14 +71,14 @@ export default function Stats() {
       {tab === "daily" && (
         <Panel>
           <SectionTitle icon="zap">XP per day · last 30 days</SectionTitle>
-          <BarChart height={140} data={last30.map((x) => ({ label: parseISO(x).getDate() % 5 === 0 || x === today ? String(parseISO(x).getDate()) : "", value: d.xpByDate[x] ?? 0, title: `${fmtShort(x)}: ${d.xpByDate[x] ?? 0} XP · ${d.days[x]?.questsDone ?? 0}/6 quests`, color: d.days[x]?.perfect ? "#f6cb62" : d.days[x]?.kept ? "#3ddc97" : "#b592ff" }))} format={(n) => `${Math.round(n)} XP`} />
+          <BarChart height={140} data={last30.map((x) => ({ label: parseISO(x).getDate() % 5 === 0 || x === today ? String(parseISO(x).getDate()) : "", value: d.xpByDate[x] ?? 0, title: `${fmtShort(x)}: ${d.xpByDate[x] ?? 0} XP · ${d.days[x]?.questsDone ?? 0}/6 quests`, color: d.days[x]?.perfect ? "var(--color-gold-400)" : d.days[x]?.kept ? "#3ddc97" : "#b592ff" }))} format={(n) => `${Math.round(n)} XP`} />
           <p className="text-[11px] text-fog mt-2">Gold = flawless · green = day kept · purple = other.</p>
         </Panel>
       )}
       {tab === "weekly" && (
         <Panel>
           <SectionTitle icon="calendar">XP per week · last 12 weeks</SectionTitle>
-          <BarChart height={140} data={weeks.map((w) => ({ label: fmtShort(w).replace(" ", " "), value: xpInRange(d, w, weekEnd(w)), color: "#f6cb62" }))} format={(n) => `${Math.round(n)} XP`} />
+          <BarChart height={140} data={weeks.map((w) => ({ label: fmtShort(w).replace(" ", " "), value: xpInRange(d, w, weekEnd(w)), color: "var(--color-gold-400)" }))} format={(n) => `${Math.round(n)} XP`} />
           <div className="mt-4 divide-y divide-white/5 text-sm">
             {[...weeks].reverse().slice(0, 8).map((w) => { const wi = weekInfoFor(state, d, w); const quests = Object.values(d.days).filter((e) => e.date >= w && e.date <= weekEnd(w)).reduce((s, e) => s + e.questsDone, 0); return (
               <div key={w} className="flex items-center gap-3 py-2"><span className="text-xs text-fog w-24 shrink-0">{fmtShort(w)} – {fmtShort(weekEnd(w))}</span><span className="tabular text-gold-300 w-16">{xpInRange(d, w, weekEnd(w))} XP</span><span className="tabular text-mist w-20">{quests} quests</span><span className="text-xs text-fog truncate ml-auto">{wi.bossWon ? "Boss ✓" : wi.valiant ? "Valiant" : wi.boss && wi.active ? "—" : ""}</span></div>

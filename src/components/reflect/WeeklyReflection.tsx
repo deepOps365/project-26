@@ -46,7 +46,7 @@ export function WeeklyReflection() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <Stat icon="zap" label="XP earned" value={xp.toLocaleString()} color="#f6cb62" />
+        <Stat icon="zap" label="XP earned" value={xp.toLocaleString()} color="var(--color-gold-400)" />
         <Stat icon="scroll" label="Quests completed" value={`${questsDone}/${possible}`} color="#b592ff" />
         <Stat icon="check" label="Habit minimums" value={`${week.stats.minimumDays}/${dates.length}`} sub="read · learn · move" color="#3ddc97" />
         <Stat icon="shield" label="Days kept" value={`${week.stats.kept}/${dates.length}`} color="#46c2f2" />

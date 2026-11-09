@@ -53,7 +53,7 @@ export function HeroCard() {
               <span className="text-mist"><b className="text-parchment tabular">{fmtNum(lvl.into)}</b> / {fmtNum(lvl.needed)} XP to Level {lvl.level + 1}</span>
               <span className="text-fog tabular">{fmtNum(d.totalXp)} total XP</span>
             </div>
-            <Bar pct={lvl.pct} color="#f6cb62" height={12} glow label="XP to next level" />
+            <Bar pct={lvl.pct} color="var(--color-gold-400)" height={12} glow label="XP to next level" />
             {nxt && <div className="text-[11px] text-fog mt-1.5">Next rank: <span style={{ color: nxt.color }} className="font-semibold">{nxt.name}</span> at Level {nxt.minLevel} · {RANKS.findIndex((r) => r.id === rank.id) + 1} of {RANKS.length} ranks</div>}
           </div>
         </div>
@@ -63,8 +63,8 @@ export function HeroCard() {
         <Stat icon="map" label="Journey" value={day < 1 ? "Prologue" : day > JOURNEY_DAYS ? "Complete" : `Day ${day}`} sub={day < 1 ? "begins soon" : `of ${JOURNEY_DAYS}`} color="#46c2f2" />
         <Stat icon="flame" label="Streak" value={`${d.streak.current}`} sub={`days · best ${d.streak.longest}`} color="#ff9f6b" />
         <Stat icon="scroll" label="Quests done" value={fmtNum(d.stats.questsDone)} sub="all time" color="#b592ff" />
-        <Stat icon="trophy" label="Trophies" value={`${unlocked}`} sub={`of ${ACHIEVEMENTS.length}`} color="#f6cb62" />
-        <Stat icon="coins" label="Gold" value={fmtNum(d.gold)} sub="to spend on treats" color="#ffe08a" />
+        <Stat icon="trophy" label="Trophies" value={`${unlocked}`} sub={`of ${ACHIEVEMENTS.length}`} color="var(--color-gold-400)" />
+        <Stat icon="coins" label="Gold" value={fmtNum(d.gold)} sub="to spend on treats" color="var(--color-gold-300)" />
         <Stat icon="shield" label="Kept days" value={`${d.stats.keptDays}`} sub={`${d.stats.minimumDays} min. days`} color="#5eeaa8" />
       </div>
 

@@ -188,7 +188,7 @@ export function ScreenInput({ date }: { date: ISODate }) {
 // ───────────────────────── Work ─────────────────────────
 const PRI: Record<Priority, { label: string; color: string; rank: number }> = {
   high: { label: "High", color: "#ef4a5f", rank: 0 },
-  medium: { label: "Medium", color: "#e3b04b", rank: 1 },
+  medium: { label: "Medium", color: "var(--color-gold-500)", rank: 1 },
   low: { label: "Low", color: "#46c2f2", rank: 2 },
 };
 export const PRIORITY = PRI;

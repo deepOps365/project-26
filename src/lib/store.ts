@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { RULES, STORAGE_KEY, configFor, makeInitialState, sanitizeTargets, sanitizeXp } from "./config";
+import { DEFAULT_REMINDERS, RULES, STORAGE_KEY, configFor, makeInitialState, sanitizeTargets, sanitizeXp } from "./config";
 import { ACH_BY_ID, REGION_BY_ID, RARITY_COLOR, type Rarity } from "./content/defs";
 import { SKILLS } from "./content/skills";
 import { isISO, todayISO, uid, weekStart, type ISODate } from "./dates";
@@ -10,8 +10,8 @@ import { exportPayload, loadBackup, loadState, mergeStates, normalizeState, save
 import { rankForLevel } from "./progression";
 import { setSoundEnabled, sfx } from "./sound";
 import {
-  SKILL_IDS, emptyDay, type ActivityType, type Book, type DayLog, type GameState, type LearnKind, type Priority, type Reflection,
-  type Reward, type Targets, type TopicId, type XpTable,
+  SKILL_IDS, emptyDay, type ActivityType, type Book, type DayLog, type FontId, type GameState, type LearnKind, type Priority, type Reflection,
+  type Reminder, type Reward, type TextScale, type Targets, type ThemeId, type TopicId, type XpTable,
 } from "./types";
 
 export interface GameEvent {
@@ -114,6 +114,11 @@ interface Store {
   setHeroName: (name: string) => void;
   setSound: (on: boolean) => void;
   setStartDate: (d: ISODate) => void;
+  setLook: (look: { theme?: ThemeId; font?: FontId; textScale?: TextScale }) => void;
+  addReminder: () => void;
+  updateReminder: (id: string, patch: Partial<Omit<Reminder, "id">>) => void;
+  removeReminder: (id: string) => void;
+  resetReminders: () => void;
   updateConfig: (patch: { targets?: Partial<Targets>; xp?: Partial<XpTable> }) => void;
   resetConfig: () => void;
 
@@ -239,6 +244,18 @@ export const useGame = create<Store>()((set, get) => {
     setHeroName: (name) => get().commit((s) => { s.settings.heroName = name.trim().slice(0, 24); }, { silent: true }),
     setSound: (on) => { get().commit((s) => { s.settings.sound = on; }, { silent: true }); if (on) sfx("open"); },
     setStartDate: (d) => { if (isISO(d)) get().commit((s) => { s.settings.startDate = d; }, { silent: true }); },
+    setLook: (look) => get().commit((s) => { Object.assign(s.settings, look); }, { silent: true }),
+    addReminder: () => get().commit((s) => { s.reminders.push({ id: uid(), label: "New reminder", time: "12:00", enabled: true, target: "checkin" }); }, { silent: true }),
+    updateReminder: (id, patch) => get().commit((s) => {
+      const r = s.reminders.find((x) => x.id === id);
+      if (!r) return;
+      if (patch.label !== undefined) r.label = patch.label.slice(0, 140);
+      if (patch.time && /^\d{2}:\d{2}$/.test(patch.time)) r.time = patch.time;
+      if (patch.enabled !== undefined) r.enabled = patch.enabled;
+      if (patch.target) r.target = patch.target;
+    }, { silent: true }),
+    removeReminder: (id) => get().commit((s) => { s.reminders = s.reminders.filter((r) => r.id !== id); }, { silent: true }),
+    resetReminders: () => get().commit((s) => { s.reminders = DEFAULT_REMINDERS.map((r) => ({ ...r })); }, { silent: true }),
     updateConfig: ({ targets, xp }) =>
       get().commit((s) => {
         const t = todayISO();

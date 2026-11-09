@@ -38,7 +38,7 @@ export function SleepPanel() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
         <Stat label="7-night avg" value={avg == null ? "—" : fmtHours(avg)} color="#7c93ff" />
         <Stat label="Healthy nights" value={d.stats.sleepGoodDays} color="#3ddc97" />
-        <Stat label="Best run" value={`${d.stats.bestSleepStreak}`} sub="nights in a row" color="#f6cb62" />
+        <Stat label="Best run" value={`${d.stats.bestSleepStreak}`} sub="nights in a row" color="var(--color-gold-400)" />
         <Stat label="Steady rhythm" value={rhythm} sub={`${d.stats.recoveries} recoveries`} color="#b592ff" />
       </div>
     </Panel>
@@ -62,7 +62,7 @@ export function ReadingPanel() {
         <Stat label="Pages read" value={fmtNum(d.stats.pages)} color="#a978ff" />
         <Stat label="Reading days" value={readDays} color="#b592ff" />
         <Stat label="Avg / reading day" value={readDays ? Math.round(d.stats.pages / readDays) : "—"} sub="pages" color="#cdb4ff" />
-        <Stat label="Books finished" value={d.stats.books} color="#f6cb62" />
+        <Stat label="Books finished" value={d.stats.books} color="var(--color-gold-400)" />
       </div>
       <Panel>
         <SectionTitle icon="library">Bookshelf</SectionTitle>
@@ -121,7 +121,7 @@ export function LearningPanel() {
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         <Stat label="Focused hours" value={(d.stats.learnEff / 60).toFixed(1)} color="#f0bc4e" />
-        <Stat label="Coding sessions" value={d.stats.codingSessions} color="#f6cb62" />
+        <Stat label="Coding sessions" value={d.stats.codingSessions} color="var(--color-gold-400)" />
         <Stat label="Topics at Apprentice+" value={`${d.stats.topicsTouched}/8`} color="#b592ff" />
         <Stat label="Quests completed" value={d.stats.learnQuestsDone} color="#3ddc97" />
       </div>
@@ -216,7 +216,7 @@ export function HealthPanel() {
           <Stat label="Workouts" value={d.stats.workoutDays} sub="days ≥ minimum" color="#3ddc97" />
           <Stat label="Active hours" value={(d.stats.activeMin / 60).toFixed(1)} color="#46c2f2" />
           <Stat label="Meditation days" value={d.stats.meditateDays} color="#b592ff" />
-          <Stat label="Ate-well days" value={d.stats.healthyDays} color="#f6cb62" />
+          <Stat label="Ate-well days" value={d.stats.healthyDays} color="var(--color-gold-400)" />
         </div>
       </Panel>
       <Panel>
@@ -253,7 +253,7 @@ export function ScreenPanel() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
           <Stat label="Average" value={avg == null ? "—" : fmtMinutes(avg)} color="#46c2f2" />
           <Stat label="Days under limit" value={d.stats.screenOkDays} color="#3ddc97" />
-          <Stat label="Best run" value={d.stats.bestScreenStreak} sub="days in a row" color="#f6cb62" />
+          <Stat label="Best run" value={d.stats.bestScreenStreak} sub="days in a row" color="var(--color-gold-400)" />
           <Stat label="Deep-focus days" value={d.stats.screenGoalDays} sub={`≤ ${fmtMinutes(t.screenGoal)}`} color="#b592ff" />
         </div>
       </Panel>
@@ -281,10 +281,10 @@ export function WorkPanel() {
     <div className="space-y-4">
       <Panel>
         <SectionTitle icon="briefcase" right={<span className="text-xs text-fog">{fmtShort(ws)} – {fmtShort(days[6])}</span>}>This week</SectionTitle>
-        <BarChart data={days.map((x) => ({ label: DAY_LETTERS[dow(x)], value: x > today ? null : d.days[x]?.metrics.tasksDone ?? 0, color: (d.days[x]?.metrics.tasksDone ?? 0) >= t.workTasks ? "#ff7a59" : "#e3b04b", title: `${fmtLong(x)}: ${d.days[x]?.metrics.tasksDone ?? 0} tasks` }))} ref={{ value: t.workTasks, label: `${t.workTasks}`, color: "#ff7a59" }} max={Math.max(8, t.workTasks + 2)} height={110} format={(n) => `${Math.round(n)} tasks`} />
+        <BarChart data={days.map((x) => ({ label: DAY_LETTERS[dow(x)], value: x > today ? null : d.days[x]?.metrics.tasksDone ?? 0, color: (d.days[x]?.metrics.tasksDone ?? 0) >= t.workTasks ? "#ff7a59" : "var(--color-gold-500)", title: `${fmtLong(x)}: ${d.days[x]?.metrics.tasksDone ?? 0} tasks` }))} ref={{ value: t.workTasks, label: `${t.workTasks}`, color: "#ff7a59" }} max={Math.max(8, t.workTasks + 2)} height={110} format={(n) => `${Math.round(n)} tasks`} />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
           <Stat label="This week" value={weekTotal} sub="tasks done" color="#ff7a59" />
-          <Stat label="All time" value={fmtNum(d.stats.tasksDone)} color="#f6cb62" />
+          <Stat label="All time" value={fmtNum(d.stats.tasksDone)} color="var(--color-gold-400)" />
           <Stat label="High priority" value={d.stats.highTasksDone} sub="finished" color="#ef4a5f" />
           <Stat label="Avg / active day" value={activeDays ? (d.stats.tasksDone / activeDays).toFixed(1) : "—"} color="#46c2f2" />
         </div>

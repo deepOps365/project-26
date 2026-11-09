@@ -4,7 +4,7 @@ import {
   HeartPulse, Hourglass, House, Info, Infinity as InfinityIcon, Layers, Leaf, Library, Lightbulb, Lock, Map as MapIcon, Medal, Menu, Minus,
   Moon, Mountain, Network, Pencil, Plus, Puzzle, Repeat, Rocket, RotateCcw, ScrollText, Settings, Share2, Shield, Skull, Smartphone, Sofa,
   Sparkles, Star, Sun, Sunrise, Swords, Target, Terminal, Trash2, Trees, Trophy, Tv, Undo2, Upload, Download, Utensils, Volume2, VolumeX,
-  Wind, X, Zap, ChartColumn, CalendarDays, TriangleAlert, type LucideIcon,
+  Wind, X, Zap, ChartColumn, CalendarDays, TriangleAlert, Bell, Palette, Type as TypeIcon, type LucideIcon,
 } from "lucide-react";
 
 const MAP: Record<string, LucideIcon> = {
@@ -17,7 +17,7 @@ const MAP: Record<string, LucideIcon> = {
   plus: Plus, puzzle: Puzzle, repeat: Repeat, rocket: Rocket, reset: RotateCcw, scroll: ScrollText, settings: Settings, share: Share2,
   shield: Shield, skull: Skull, phone: Smartphone, sofa: Sofa, sparkles: Sparkles, star: Star, sun: Sun, sunrise: Sunrise, swords: Swords,
   target: Target, terminal: Terminal, trash: Trash2, trees: Trees, trophy: Trophy, tv: Tv, undo: Undo2, upload: Upload, download: Download,
-  utensils: Utensils, volume: Volume2, mute: VolumeX, wind: Wind, x: X, zap: Zap, chart: ChartColumn, calendar: CalendarDays, warn: TriangleAlert,
+  utensils: Utensils, volume: Volume2, mute: VolumeX, wind: Wind, x: X, zap: Zap, chart: ChartColumn, calendar: CalendarDays, warn: TriangleAlert, bell: Bell, palette: Palette, type: TypeIcon,
 };
 
 export function Icon({ name, size = 18, className, strokeWidth = 1.8, style }: { name: string; size?: number; className?: string; strokeWidth?: number; style?: React.CSSProperties }) {

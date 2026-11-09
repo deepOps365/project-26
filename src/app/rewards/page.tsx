@@ -44,7 +44,7 @@ export default function Rewards() {
     <div className="space-y-5">
       <PageHeader icon="gift" title="Reward Shop" subtitle="Optional treats you define yourself. Spend gold earned from XP — spending never lowers your level." right={<button className="btn btn-gold btn-sm" onClick={() => setForm({ open: true })}><Icon name="plus" size={14} />New reward</button>} />
       <Panel gold className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-2xl grid place-items-center bg-gold-400/15 text-gold-300 shrink-0" style={{ boxShadow: "0 0 24px rgba(246,203,98,.3)" }}><Icon name="coins" size={28} /></div>
+        <div className="w-14 h-14 rounded-2xl grid place-items-center bg-gold-400/15 text-gold-300 shrink-0" style={{ boxShadow: "0 0 24px color-mix(in srgb, var(--color-gold-400) 30%, transparent)" }}><Icon name="coins" size={28} /></div>
         <div className="flex-1"><div className="font-display text-3xl gold-text tabular">{fmtNum(d.gold)} <span className="text-base text-mist font-sans">gold</span></div><div className="text-xs text-fog tabular">{fmtNum(d.totalXp)} earned · {fmtNum(d.spent)} spent</div></div>
       </Panel>
       <Panel className="flex gap-3 items-start border-jade-500/25"><Icon name="sofa" size={20} className="text-jade-400 mt-0.5 shrink-0" /><p className="text-sm text-mist"><b className="text-parchment">Rest is always free.</b> Sleeping in, a slow evening, a walk, a good meal with friends — none of that needs to be earned. The shop is only for extra treats you&apos;d like a little ceremony around.</p></Panel>
@@ -55,13 +55,13 @@ export default function Rewards() {
             const lvlLocked = !!r.minLevel && d.level.level < r.minLevel;
             const afford = d.gold >= r.cost;
             return (
-              <Panel key={r.id} className={afford && !lvlLocked ? "panel-glow" : ""} glow={afford && !lvlLocked ? "rgba(246,203,98,.35)" : undefined} accent="#f6cb62">
+              <Panel key={r.id} className={afford && !lvlLocked ? "panel-glow" : ""} glow={afford && !lvlLocked ? "color-mix(in srgb, var(--color-gold-400) 35%, transparent)" : undefined} accent="var(--color-gold-400)">
                 <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-xl grid place-items-center shrink-0" style={lvlLocked ? { background: "rgba(255,255,255,.05)", color: "#6f6e86" } : { background: "rgba(246,203,98,.12)", color: "#f6cb62" }}><Icon name={lvlLocked ? "lock" : r.icon} size={22} /></div>
+                  <div className="w-12 h-12 rounded-xl grid place-items-center shrink-0" style={lvlLocked ? { background: "rgba(255,255,255,.05)", color: "#6f6e86" } : { background: "color-mix(in srgb, var(--color-gold-400) 12%, transparent)", color: "var(--color-gold-400)" }}><Icon name={lvlLocked ? "lock" : r.icon} size={22} /></div>
                   <div className="min-w-0 flex-1"><div className="font-display text-[15px] leading-snug">{r.title}</div><div className="text-xs text-fog mt-0.5">{lvlLocked ? `Unlocks at Level ${r.minLevel}` : r.minLevel ? `Level ${r.minLevel}+ ✓` : "Always available"}</div></div>
                   <div className="text-right shrink-0"><div className="font-display text-gold-300 tabular">{fmtNum(r.cost)}</div><div className="text-[10px] text-fog tracking-widest">GOLD</div></div>
                 </div>
-                {!afford && !lvlLocked && <div className="mt-3"><Bar pct={d.gold / Math.max(1, r.cost)} color="#f6cb62" height={5} /><div className="text-[11px] text-fog mt-1 tabular">{fmtNum(r.cost - d.gold)} gold to go</div></div>}
+                {!afford && !lvlLocked && <div className="mt-3"><Bar pct={d.gold / Math.max(1, r.cost)} color="var(--color-gold-400)" height={5} /><div className="text-[11px] text-fog mt-1 tabular">{fmtNum(r.cost - d.gold)} gold to go</div></div>}
                 <div className="flex items-center gap-2 mt-3">
                   <button className="btn btn-gold flex-1" disabled={!afford || lvlLocked} onClick={() => { const e = redeem(r.id); setMsg({ ...msg, [r.id]: e ?? "Claimed — enjoy it, guilt-free." }); if (!e) sfx("achievement"); }}>Claim</button>
                   <button className="btn btn-icon btn-sm" onClick={() => setForm({ open: true, edit: r })} aria-label={`Edit ${r.title}`}><Icon name="pencil" size={14} /></button>

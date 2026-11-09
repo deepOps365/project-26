@@ -1,5 +1,5 @@
 import { type ISODate } from "./dates";
-import type { ConfigEntry, GameState, Reward, SideQuestDef, Targets, XpTable } from "./types";
+import type { ConfigEntry, GameState, Reminder, Reward, SideQuestDef, Targets, XpTable } from "./types";
 
 export const PROJECT_START: ISODate = "2026-11-14";
 export const STORAGE_KEY = "project26:v1";
@@ -104,12 +104,20 @@ export const DEFAULT_REWARDS: Reward[] = [
   { id: "rw-dinner", title: "A proper dinner out", cost: 700, icon: "utensils", minLevel: 10 },
 ];
 
+export const DEFAULT_REMINDERS: Reminder[] = [
+  { id: "rm-morning", label: "Good morning — log last night's sleep, pick today's top 3", time: "07:45", enabled: true, target: "checkin" },
+  { id: "rm-learn", label: "Learning block — 20 focused minutes (practise, don't just watch)", time: "13:30", enabled: true, target: "learning" },
+  { id: "rm-move", label: "Move for 15 minutes — a walk counts", time: "18:00", enabled: true, target: "health" },
+  { id: "rm-screen", label: "Log your screen time, then a one-minute reflection", time: "21:00", enabled: true, target: "reflect" },
+  { id: "rm-read", label: "Two pages before bed — that's the whole job", time: "22:00", enabled: true, target: "reading" },
+];
+
 export function makeInitialState(startDate: ISODate = PROJECT_START): GameState {
   return {
     version: 1,
     createdAt: Date.now(),
     onboarded: false,
-    settings: { heroName: "", startDate, sound: true },
+    settings: { heroName: "", startDate, sound: true, theme: "ember", font: "classic", textScale: "md" },
     configHistory: [{ from: "0000-01-01", targets: { ...DEFAULT_TARGETS }, xp: { ...DEFAULT_XP } }],
     days: {},
     books: [],
@@ -119,6 +127,7 @@ export function makeInitialState(startDate: ISODate = PROJECT_START): GameState 
     rewards: DEFAULT_REWARDS.map((r) => ({ ...r })),
     redemptions: [],
     sideQuests: DEFAULT_SIDE_QUESTS.map((s) => ({ ...s })),
+    reminders: DEFAULT_REMINDERS.map((r) => ({ ...r })),
     lastUsed: { topic: "python", kind: "practice", activity: "walk" },
   };
 }

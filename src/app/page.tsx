@@ -7,7 +7,9 @@ import { QuestCard } from "@/components/quest/QuestCard";
 import { Bar, Panel, Ring, SectionTitle } from "@/components/ui";
 import { SKILLS } from "@/lib/content/skills";
 import { diffDays, fmtFull, fmtLong, weekStart } from "@/lib/dates";
-import { dayEvalFor, weekInfoFor } from "@/lib/engine";
+import { dayEvalFor, hasReflection as reflectionDone, weekInfoFor } from "@/lib/engine";
+import { dueNow, targetPath } from "@/lib/reminders";
+import { useNow } from "@/lib/useNow";
 import { useGame } from "@/lib/store";
 import { SKILL_IDS, type SkillId } from "@/lib/types";
 
@@ -22,7 +24,12 @@ export default function Home() {
   const d = useGame((s) => s.derived);
   const today = useGame((s) => s.today);
   const ev = dayEvalFor(state, d, today);
-  const hour = new Date().getHours();
+  const now = useNow();
+  const hour = now.getHours();
+  const due = dueNow(state.reminders, now, (t) =>
+    t === "reflect" ? reflectionDone(state.days[today]?.reflection)
+    : t === "checkin" ? ev.quests.sleep.logged || ev.questsDone > 0
+    : ["done", "exceeded"].includes(ev.quests[t].state));
   const part = hour < 12 ? "morning" : hour < 18 ? "day" : "evening";
   const greeting = hour < 5 ? "Still up" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const until = diffDays(today, state.settings.startDate);
@@ -50,9 +57,19 @@ export default function Home() {
         <Panel className="border-azure-500/30 flex gap-3 items-start">
           <Icon name="map" size={20} className="text-azure-400 mt-0.5 shrink-0" />
           <div className="text-sm text-mist">
-            <b className="text-parchment">The journey begins in {until} day{until === 1 ? "" : "s"}</b> — {fmtFull(state.settings.startDate)}. You can practise freely now; when Day 1 arrives, use <Link className="text-gold-300 underline" href="/settings/">Settings → Start fresh</Link> for a clean slate.
+            <b className="text-parchment">The journey begins in {until} day{until === 1 ? "" : "s"}</b> — {fmtFull(state.settings.startDate)}. You can practise freely now; when Day 1 arrives, use <Link className="text-gold-300 underline" href="/settings/#danger">Settings → Start fresh</Link> for a clean slate.
           </div>
         </Panel>
+      )}
+
+      {due && (
+        <Link href={targetPath(due.target)} className="block animate-rise">
+          <Panel gold className="flex items-center gap-3.5">
+            <span className="w-11 h-11 rounded-xl grid place-items-center shrink-0 animate-pulse" style={{ background: "color-mix(in srgb, var(--color-gold-400) 16%, transparent)", color: "var(--color-gold-400)" }}><Icon name="bell" size={20} /></span>
+            <div className="min-w-0 flex-1"><div className="text-[11px] uppercase tracking-widest text-gold-400 font-semibold">Due now · {due.time}</div><div className="text-sm text-parchment leading-snug">{due.label}</div></div>
+            <span className="btn btn-gold btn-sm shrink-0">Do it</span>
+          </Panel>
+        </Link>
       )}
 
       <HeroCard />

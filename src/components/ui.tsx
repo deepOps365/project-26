@@ -47,7 +47,7 @@ export function PageHeader({ title, subtitle, right, icon }: { title: string; su
 }
 
 /** Animated progress bar. pct is 0..1 */
-export function Bar({ pct, color = "#e3b04b", height = 8, glow, className, label }: {
+export function Bar({ pct, color = "var(--color-gold-500)", height = 8, glow, className, label }: {
   pct: number; color?: string; height?: number; glow?: boolean; className?: string; label?: string;
 }) {
   const p = Math.max(0, Math.min(1, Number.isFinite(pct) ? pct : 0));
@@ -69,7 +69,7 @@ export function Bar({ pct, color = "#e3b04b", height = 8, glow, className, label
   );
 }
 
-export function Ring({ pct, size = 56, stroke = 5, color = "#e3b04b", children, track = "rgba(255,255,255,.08)" }: {
+export function Ring({ pct, size = 56, stroke = 5, color = "var(--color-gold-500)", children, track = "rgba(255,255,255,.08)" }: {
   pct: number; size?: number; stroke?: number; color?: string; children?: ReactNode; track?: string;
 }) {
   const r = (size - stroke) / 2;
@@ -212,11 +212,30 @@ export function Avatar({ size = 120, pct, color, level }: { size?: number; pct: 
         <path d="M33 70c6 4 28 4 34 0" stroke={color} strokeOpacity=".4" strokeWidth=".8" fill="none" />
       </svg>
       <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[11px] font-bold font-display tabular text-[#1b1204] ring-2 ring-[#0b0a12]"
-        style={{ background: `linear-gradient(180deg, #fff0c2, ${color})` }}>LV {level}</div>
+        style={{ background: `linear-gradient(180deg, var(--color-gold-200), ${color})` }}>LV {level}</div>
     </div>
   );
 }
 
 export function Rarity({ r }: { r: string }) {
   return <span className="text-[10px] font-bold uppercase tracking-widest">{r}</span>;
+}
+
+/** Collapsible settings-style section. Controlled so quick-links can open it. */
+export function Fold({ id, title, icon, summary, open, onToggle, tone, children }: {
+  id: string; title: string; icon: string; summary?: ReactNode; open: boolean; onToggle: () => void; tone?: "danger" | "gold"; children: ReactNode;
+}) {
+  return (
+    <section id={id} className={cx("panel overflow-hidden scroll-mt-4", tone === "gold" && "panel-gold", tone === "danger" && "!border-blood-500/30")}>
+      <button className="w-full flex items-center gap-3.5 p-4 text-left" onClick={onToggle} aria-expanded={open} aria-controls={`${id}-body`}>
+        <span className={cx("w-10 h-10 rounded-xl grid place-items-center shrink-0", tone === "danger" ? "bg-blood-500/15 text-blood-400" : "bg-gold-400/12 text-gold-400")} style={tone === "danger" ? undefined : { background: "color-mix(in srgb, var(--color-gold-400) 12%, transparent)" }}><Icon name={icon} size={19} /></span>
+        <span className="min-w-0 flex-1">
+          <span className={cx("block font-display text-[15px]", tone === "danger" && "text-blood-400")}>{title}</span>
+          {summary && <span className="block text-xs text-fog truncate">{summary}</span>}
+        </span>
+        <Icon name="down" size={16} className={cx("text-fog transition-transform shrink-0", open && "rotate-180")} />
+      </button>
+      {open && <div id={`${id}-body`} className="px-4 pb-5 pt-1 animate-rise"><div className="divider mb-4" />{children}</div>}
+    </section>
+  );
 }

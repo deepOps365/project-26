@@ -16,6 +16,7 @@ const NAV = [
   { href: "/skills/", label: "Skills", icon: "sparkles" },
   { href: "/battle/", label: "Battle", icon: "swords" },
   { href: "/reflect/", label: "Reflect", icon: "feather" },
+  { href: "/reminders/", label: "Reminders", icon: "bell" },
   { href: "/achievements/", label: "Trophies", icon: "trophy" },
   { href: "/map/", label: "World", icon: "map" },
   { href: "/rewards/", label: "Shop", icon: "gift" },
@@ -192,8 +193,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const today = useGame((s) => s.today);
   const pathname = norm(usePathname() || "/");
   const [more, setMore] = useState(false);
+  const { theme, font, textScale } = state.settings;
 
   useEffect(() => { init(); }, [init]);
+  useEffect(() => {
+    const el = document.documentElement;
+    el.dataset.theme = theme; el.dataset.font = font; el.dataset.scale = textScale;
+    try { localStorage.setItem("p26-look", JSON.stringify({ t: theme, f: font, s: textScale })); } catch { /* optional */ }
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", getComputedStyle(el).getPropertyValue("--color-ink-950").trim() || "#06060a");
+  }, [theme, font, textScale]);
   useEffect(() => { const t = setInterval(tick, 30_000); return () => clearInterval(t); }, [tick]);
   useEffect(() => {
     const base = process.env.NEXT_PUBLIC_BASE_PATH || "";

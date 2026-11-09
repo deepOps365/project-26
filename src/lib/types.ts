@@ -92,10 +92,27 @@ export interface XpTable {
 
 export interface ConfigEntry { from: ISODate; targets: Targets; xp: XpTable }
 
+export type ThemeId = "ember" | "arcane" | "grove" | "crimson" | "frost" | "ash";
+export type FontId = "classic" | "elegant" | "hud" | "storybook" | "royal" | "clean";
+export type TextScale = "sm" | "md" | "lg";
+
 export interface Settings {
   heroName: string;
   startDate: ISODate;
   sound: boolean;
+  theme: ThemeId;
+  font: FontId;
+  textScale: TextScale;
+}
+
+/** A time-of-day nudge. Delivered through your phone's calendar (see /reminders) and as an in-app "due now" card. */
+export interface Reminder {
+  id: string;
+  label: string;
+  time: string; // "HH:MM" local
+  enabled: boolean;
+  /** What completing it means: a daily quest, the evening reflection, or the quick check-in. */
+  target: SkillId | "reflect" | "checkin";
 }
 
 export interface GameState {
@@ -113,6 +130,7 @@ export interface GameState {
   rewards: Reward[];
   redemptions: Redemption[];
   sideQuests: SideQuestDef[];
+  reminders: Reminder[];
   lastExportAt?: number;
   lastUsed: { topic: TopicId; kind: LearnKind; activity: ActivityType; bookId?: string };
 }

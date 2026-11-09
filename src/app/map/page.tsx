@@ -93,7 +93,7 @@ export default function MapPage() {
               <li key={r.id} className="relative sm:grid sm:grid-cols-2 sm:gap-10 pl-12 sm:pl-0 animate-rise" style={{ animationDelay: `${i * 70}ms` }}>
                 <div className={cx("absolute left-0 sm:left-1/2 top-6 sm:-translate-x-1/2 z-[1]")}>
                   {isHere ? <div className="-ml-0.5 sm:-ml-0"><Avatar size={40} pct={d.level.pct} color={rank.color} level={level} /></div> : (
-                    <div className="w-[38px] h-[38px] rounded-full grid place-items-center ring-2 bg-ink-900" style={{ ["--tw-ring-color" as string]: st === "cleared" ? "#f6cb62" : st === "open" ? r.color : "rgba(255,255,255,.12)", color: st === "locked" ? "#6f6e86" : r.color }}><Icon name={st === "cleared" ? "check" : st === "locked" ? "lock" : r.icon} size={16} /></div>
+                    <div className="w-[38px] h-[38px] rounded-full grid place-items-center ring-2 bg-ink-900" style={{ ["--tw-ring-color" as string]: st === "cleared" ? "var(--color-gold-400)" : st === "open" ? r.color : "rgba(255,255,255,.12)", color: st === "locked" ? "#6f6e86" : r.color }}><Icon name={st === "cleared" ? "check" : st === "locked" ? "lock" : r.icon} size={16} /></div>
                   )}
                 </div>
                 <div className={cx(left ? "sm:col-start-1" : "sm:col-start-2")}>

@@ -1,4 +1,4 @@
-import { BACKUP_KEY, DEFAULT_REWARDS, DEFAULT_SIDE_QUESTS, STORAGE_KEY, makeInitialState, sanitizeTargets, sanitizeXp } from "./config";
+import { BACKUP_KEY, DEFAULT_REMINDERS, DEFAULT_REWARDS, DEFAULT_SIDE_QUESTS, STORAGE_KEY, makeInitialState, sanitizeTargets, sanitizeXp } from "./config";
 import { isISO, todayISO } from "./dates";
 import { emptyDay, type ConfigEntry, type DayLog, type GameState } from "./types";
 
@@ -44,6 +44,9 @@ export function normalizeState(raw: unknown): GameState | null {
       heroName: str(s.heroName),
       startDate: isISO(s.startDate) ? (s.startDate as string) : base.settings.startDate,
       sound: s.sound !== false,
+      theme: (["ember", "arcane", "grove", "crimson", "frost", "ash"].includes(str(s.theme)) ? s.theme : "ember") as GameState["settings"]["theme"],
+      font: (["classic", "elegant", "hud", "storybook", "royal", "clean"].includes(str(s.font)) ? s.font : "classic") as GameState["settings"]["font"],
+      textScale: (["sm", "md", "lg"].includes(str(s.textScale)) ? s.textScale : "md") as GameState["settings"]["textScale"],
     },
     days: {},
     books: arr<GameState["books"][number]>(src.books).filter((b) => isObj(b) && str(b.title)).map((b) => ({ id: str(b.id), title: str(b.title), author: str(b.author) || undefined, totalPages: num(b.totalPages) || undefined, startedOn: isISO(b.startedOn) ? b.startedOn : todayISO(), finishedOn: isISO(b.finishedOn) ? b.finishedOn : undefined })),
@@ -53,6 +56,12 @@ export function normalizeState(raw: unknown): GameState | null {
     rewards: arr<GameState["rewards"][number]>(src.rewards).filter((r) => isObj(r) && str(r.title)).map((r) => ({ id: str(r.id), title: str(r.title), cost: Math.max(0, num(r.cost)), icon: str(r.icon, "gift"), minLevel: num(r.minLevel) || undefined, note: str(r.note) || undefined })),
     redemptions: arr<GameState["redemptions"][number]>(src.redemptions).filter((r) => isObj(r) && isISO(r.date)).map((r) => ({ id: str(r.id), rewardId: str(r.rewardId), title: str(r.title), cost: Math.max(0, num(r.cost)), date: r.date as string, ts: num(r.ts) })),
     sideQuests: arr<GameState["sideQuests"][number]>(src.sideQuests).filter((q) => isObj(q) && str(q.title)).map((q) => ({ id: str(q.id), title: str(q.title), xp: Math.min(30, Math.max(1, num(q.xp, 8))), custom: q.custom === true || undefined })),
+    reminders: Array.isArray(src.reminders)
+      ? arr<GameState["reminders"][number]>(src.reminders).filter((r) => isObj(r) && /^\d{1,2}:\d{2}$/.test(str(r.time))).map((r) => ({
+          id: str(r.id, Math.random().toString(36).slice(2, 10)), label: str(r.label).slice(0, 140), time: str(r.time).padStart(5, "0"), enabled: r.enabled !== false,
+          target: (["sleep", "reading", "learning", "health", "screen", "work", "reflect", "checkin"].includes(str(r.target)) ? r.target : "checkin") as GameState["reminders"][number]["target"],
+        }))
+      : DEFAULT_REMINDERS.map((r) => ({ ...r })),
     lastUsed: isObj(src.lastUsed) ? { ...base.lastUsed, ...(src.lastUsed as object) } : base.lastUsed,
     lastExportAt: num(src.lastExportAt) || undefined,
   };

@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
-import { Confirm, Modal, PageHeader, Panel, SectionTitle, Toggle } from "@/components/ui";
+import { Confirm, Fold, Modal, PageHeader, Panel, Segmented, Toggle, cx } from "@/components/ui";
 import { DEFAULT_TARGETS, DEFAULT_XP, TARGET_LIMITS, configFor } from "@/lib/config";
+import { FONTS, THEMES } from "@/lib/content/look";
 import { SKILLS } from "@/lib/content/skills";
 import { diffDays, fmtFull, isISO, journeyDay, journeyEnd } from "@/lib/dates";
 import { loadBackup } from "@/lib/persist";
 import { useGame } from "@/lib/store";
-import type { Targets, XpTable } from "@/lib/types";
+import { sfx } from "@/lib/sound";
+import type { TextScale, Targets, XpTable } from "@/lib/types";
 
 interface BIPEvent extends Event { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> }
 
@@ -61,6 +64,18 @@ export default function Settings() {
   const [typed, setTyped] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const install = useInstall();
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const toggle = (id: string) => setOpen((o) => { const n = new Set(o); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const jump = useCallback((id: string) => {
+    setOpen((o) => new Set(o).add(id));
+    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+  }, []);
+  useEffect(() => {
+    const go = () => { const h = location.hash.replace("#", ""); if (h) jump(h === "phone" ? "phone" : h); };
+    go();
+    window.addEventListener("hashchange", go);
+    return () => window.removeEventListener("hashchange", go);
+  }, [jump]);
   const backup = typeof window !== "undefined" ? loadBackup() : null;
   const dirty = JSON.stringify(targets) !== JSON.stringify(cfg.targets) || JSON.stringify(xp) !== JSON.stringify(cfg.xp);
   const until = diffDays(today, state.settings.startDate);
@@ -80,13 +95,82 @@ export default function Settings() {
   const applyImport = (mode: "replace" | "merge") => { if (pending == null) return; const r = g.importJSON(pending, mode); setMsg({ ok: r.ok, text: r.message }); if (r.ok) { setPending(null); setPaste(""); } };
   const lastExport = state.lastExportAt ? Math.floor((Date.now() - state.lastExportAt) / 86400000) : null;
 
+  const JUMPS: [string, string][] = [["look", "Look & feel"], ["backup", "Backup"], ["danger", "Reset"]];
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <PageHeader icon="settings" title="Settings" subtitle="Tune the rules, protect your progress, take the game with you." />
+      <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1" aria-label="Jump to a section">
+        {JUMPS.map(([id, label]) => <button key={id} className="chip shrink-0" onClick={() => jump(id)}>{label}</button>)}
+      </div>
 
-      {/* Hero */}
-      <Panel>
-        <SectionTitle icon="crown">Hero &amp; journey</SectionTitle>
+      <Fold id="look" icon="palette" title="Look & feel" summary={`${THEMES.find((t) => t.id === state.settings.theme)?.name} · ${FONTS.find((f) => f.id === state.settings.font)?.name}`} open={open.has("look")} onToggle={() => toggle("look")}>
+        <div className="space-y-6">
+          <div>
+            <div className="label mb-2.5">Colour theme</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              {THEMES.map((t) => {
+                const on = state.settings.theme === t.id;
+                return (
+                  <button key={t.id} onClick={() => { sfx("tap"); g.setLook({ theme: t.id }); }} aria-pressed={on}
+                    className={cx("rounded-2xl p-2.5 text-left ring-2 transition active:scale-[.98]", on ? "ring-[var(--color-gold-400)]" : "ring-white/10 hover:ring-white/25")}>
+                    <div className="rounded-xl p-2.5 mb-2" style={{ background: t.bg, boxShadow: "inset 0 0 0 1px rgba(255,255,255,.07)" }}>
+                      <div className="rounded-lg p-2" style={{ background: t.panel }}>
+                        <div className="h-1.5 w-2/3 rounded-full mb-1.5" style={{ background: `linear-gradient(90deg, ${t.accent}, ${t.accent2})` }} />
+                        <div className="h-1 w-full rounded-full mb-1" style={{ background: t.text, opacity: 0.25 }} />
+                        <div className="h-1 w-1/2 rounded-full" style={{ background: t.text, opacity: 0.25 }} />
+                      </div>
+                      <div className="flex gap-1.5 mt-2"><span className="w-3 h-3 rounded-full" style={{ background: t.accent }} /><span className="w-3 h-3 rounded-full" style={{ background: t.accent2 }} /></div>
+                    </div>
+                    <div className="text-sm font-semibold flex items-center justify-between">{t.name}{on && <Icon name="check" size={14} className="text-gold-400" strokeWidth={3} />}</div>
+                    <div className="text-[11px] text-fog leading-snug">{t.tagline}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <div className="label mb-2.5">Fonts</div>
+            <div className="grid sm:grid-cols-2 gap-2.5">
+              {FONTS.map((f) => {
+                const on = state.settings.font === f.id;
+                return (
+                  <button key={f.id} onClick={() => { sfx("tap"); g.setLook({ font: f.id }); }} aria-pressed={on}
+                    className={cx("rounded-2xl p-3.5 text-left ring-2 transition active:scale-[.99]", on ? "ring-[var(--color-gold-400)] bg-white/[.04]" : "ring-white/10 hover:ring-white/25")}>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="text-xl leading-tight gold-text" style={{ fontFamily: f.displayCss, fontWeight: 600 }}>{f.name}</span>
+                      {on && <Icon name="check" size={14} className="text-gold-400 shrink-0" strokeWidth={3} />}
+                    </div>
+                    <div className="text-sm mt-1" style={{ fontFamily: f.displayCss, fontWeight: 600 }}>Level 12 · Explorer</div>
+                    <div className="text-xs text-mist mt-1" style={{ fontFamily: f.bodyCss }}>Read 2 pages, learn 20 minutes, walk 15. Small steps, every day.</div>
+                    <div className="text-[10px] text-fog mt-2">{f.display}{f.display !== f.body ? ` + ${f.body}` : ""} · {f.note}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <div className="label mb-2.5">Text size</div>
+            <Segmented<TextScale> value={state.settings.textScale} onChange={(v) => g.setLook({ textScale: v })} options={[{ value: "sm", label: "Compact" }, { value: "md", label: "Standard" }, { value: "lg", label: "Large" }]} />
+          </div>
+
+          <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
+            <button className="btn btn-sm" onClick={() => g.setLook({ theme: "ember", font: "classic", textScale: "md" })}><Icon name="reset" size={13} />Back to the original look</button>
+          </div>
+          <p className="text-xs text-fog leading-relaxed">
+            Want to explore beyond these? Browse <a className="text-gold-300 underline" href="https://fonts.google.com" target="_blank" rel="noopener noreferrer">fonts.google.com</a>, <a className="text-gold-300 underline" href="https://www.fontpair.co" target="_blank" rel="noopener noreferrer">fontpair.co</a> (ready-made pairings) and <a className="text-gold-300 underline" href="https://www.realtimecolors.com" target="_blank" rel="noopener noreferrer">realtimecolors.com</a> or <a className="text-gold-300 underline" href="https://coolors.co" target="_blank" rel="noopener noreferrer">coolors.co</a> (colour palettes). Tell me the font names or hex colours you like and I&apos;ll add them here as new options.
+          </p>
+        </div>
+      </Fold>
+
+      <Link href="/reminders/" className="panel flex items-center gap-3.5 p-4">
+        <span className="w-10 h-10 rounded-xl grid place-items-center shrink-0" style={{ background: "color-mix(in srgb, var(--color-gold-400) 12%, transparent)", color: "var(--color-gold-400)" }}><Icon name="bell" size={19} /></span>
+        <span className="min-w-0 flex-1"><span className="block font-display text-[15px]">Reminders</span><span className="block text-xs text-fog truncate">Time-of-day nudges on your phone</span></span>
+        <Icon name="right" size={16} className="text-fog" />
+      </Link>
+
+      <Fold id="hero" icon="crown" title="Hero & journey" summary={`${state.settings.heroName || "Hero"} · ${until > 0 ? `starts in ${until} day${until === 1 ? "" : "s"}` : jd <= 365 ? `day ${jd} of 365` : "complete"}`} open={open.has("hero")} onToggle={() => toggle("hero")}>
         <div className="grid sm:grid-cols-2 gap-4">
           <div><label className="label block mb-1.5" htmlFor="name">Hero name</label><input id="name" className="input" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => g.setHeroName(name)} maxLength={24} /></div>
           <div>
@@ -99,11 +183,9 @@ export default function Settings() {
           <div><div className="text-sm font-semibold">Sound effects</div><div className="text-xs text-fog">Soft, synthesised chimes. Mute any time.</div></div>
           <Toggle on={state.settings.sound} onChange={g.setSound} label="Sound effects" />
         </div>
-      </Panel>
+      </Fold>
 
-      {/* Phone & install */}
-      <Panel id="phone" gold>
-        <SectionTitle icon="phone">Use it on your phone &amp; laptop</SectionTitle>
+      <Fold id="phone" icon="phone" tone="gold" title="Phone & install" summary="Use it on phone and laptop" open={open.has("phone")} onToggle={() => toggle("phone")}>
         <div className="space-y-3 text-sm text-mist">
           <p>Project 26 is a web app that works offline once installed. Open the <b className="text-parchment">same web address</b> on both devices — but note: <b className="text-parchment">progress is stored on each device separately</b> (there is no server). Move progress between devices with a backup file; <em>Merge</em> combines both without double-counting.</p>
           {install.installed ? <p className="text-jade-400 flex items-center gap-2"><Icon name="check" size={16} />Installed — you&apos;re running it as an app.</p> : install.ev ? (
@@ -114,11 +196,9 @@ export default function Settings() {
             <p className="text-fog">On Android Chrome: menu ⋮ → <b className="text-parchment">Install app</b>. On desktop Chrome/Edge: the install icon in the address bar. (Install needs the page to be served over HTTPS or localhost.)</p>
           )}
         </div>
-      </Panel>
+      </Fold>
 
-      {/* Rules */}
-      <Panel>
-        <SectionTitle icon="target" right={dirty ? <span className="text-xs text-gold-300">unsaved</span> : saved ? <span className="text-xs text-jade-400">saved ✓</span> : null}>Quest rules</SectionTitle>
+      <Fold id="rules" icon="target" title="Quest rules" summary={dirty ? "Unsaved changes" : "XP and daily targets"} open={open.has("rules")} onToggle={() => toggle("rules")}>
         <p className="text-xs text-fog mb-4 -mt-1">Changes apply <b className="text-mist">from today forward</b> — past days keep the rules they were played under, so your history is never re-scored.</p>
         <div className="grid sm:grid-cols-2 gap-x-4 gap-y-3">
           {TARGET_FIELDS.map((f) => (
@@ -146,11 +226,9 @@ export default function Settings() {
           <button className="btn" onClick={() => { setTargets({ ...DEFAULT_TARGETS }); setXp({ ...DEFAULT_XP }); }}>Load defaults</button>
           {dirty && <button className="btn" onClick={() => { setTargets(cfg.targets); setXp(cfg.xp); }}>Discard</button>}
         </div>
-      </Panel>
+      </Fold>
 
-      {/* Backup */}
-      <Panel id="backup">
-        <SectionTitle icon="download">Backup &amp; restore</SectionTitle>
+      <Fold id="backup" icon="download" title="Backup & restore" summary={lastExport == null ? "Not exported yet" : lastExport === 0 ? "Exported today" : `Exported ${lastExport} day${lastExport === 1 ? "" : "s"} ago`} open={open.has("backup")} onToggle={() => toggle("backup")}>
         <p className="text-sm text-mist mb-1">Everything lives in this browser. {lastExport == null ? "You haven't exported a backup yet." : lastExport === 0 ? "Last exported today." : `Last exported ${lastExport} day${lastExport === 1 ? "" : "s"} ago.`}</p>
         <p className="text-xs text-fog mb-4">Tip: export weekly (e.g. after your Sunday boss) and keep the file somewhere safe — cloud drive or email it to yourself.</p>
         <div className="flex flex-wrap gap-2 mb-5">
@@ -183,11 +261,9 @@ export default function Settings() {
             <button className="btn btn-sm" onClick={() => setConfirm("backup")}><Icon name="reset" size={13} />Restore it</button>
           </div>
         )}
-      </Panel>
+      </Fold>
 
-      {/* How it works */}
-      <Panel>
-        <SectionTitle icon="scroll">How the rules work</SectionTitle>
+      <Fold id="how" icon="scroll" title="How the rules work" summary="XP, streaks, shield, limits" open={open.has("how")} onToggle={() => toggle("how")}>
         <ul className="space-y-2.5 text-sm text-mist">
           {[
             ["Nothing is claimed", "XP is always calculated from what you logged. Fix a mistake and the XP corrects itself; you can never get paid twice."],
@@ -198,16 +274,14 @@ export default function Settings() {
             ["Gold", "1 earned XP = 1 gold. Spending gold on treats never lowers your level."],
           ].map(([t, b]) => <li key={t} className="flex gap-3"><Icon name="sparkles" size={15} className="text-gold-400 mt-1 shrink-0" /><span><b className="text-parchment">{t}.</b> {b}</span></li>)}
         </ul>
-      </Panel>
+      </Fold>
 
-      {/* Danger */}
-      <Panel className="border-blood-500/30">
-        <SectionTitle icon="warn" className="!text-blood-400">Danger zone</SectionTitle>
+      <Fold id="danger" icon="warn" tone="danger" title="Reset · Start fresh" summary="Clear practice data on Day 1, or erase everything" open={open.has("danger")} onToggle={() => toggle("danger")}>
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3 flex-wrap"><div className="text-sm"><b>Start fresh</b><div className="text-xs text-fog">Clears all logs, tasks, books and claims. Keeps your settings, rules and shop. Perfect for Day 1.</div></div><button className="btn btn-danger" onClick={() => setConfirm("fresh")}>Start fresh</button></div>
           <div className="flex items-center justify-between gap-3 flex-wrap"><div className="text-sm"><b>Erase everything</b><div className="text-xs text-fog">Factory reset — removes all data from this browser.</div></div><button className="btn btn-danger" onClick={() => { setTyped(""); setConfirm("erase"); }}>Erase everything</button></div>
         </div>
-      </Panel>
+      </Fold>
       <p className="text-center text-xs text-fog pb-4">PROJECT 26 · {d.stats.keptDays} days kept · built to be needed less, not more.</p>
 
       <Confirm open={confirm === "replace"} danger title="Replace everything?" body="This device's current progress will be overwritten by the backup. Export first if you're unsure." confirmLabel="Replace" onConfirm={() => applyImport("replace")} onClose={() => setConfirm(null)} />

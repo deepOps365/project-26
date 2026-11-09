@@ -13,7 +13,7 @@ export PATH=/opt/homebrew/bin:$PATH   # only if `node` isn't found in a new term
 npm run phone      # build + serve on your network (prints a QR code for your phone)
 npm run build && npm run serve   # same thing in two steps
 npm run dev        # hot-reload development (http://localhost:3026)
-npm test           # 25 engine rule tests
+npm test           # 25 engine rule tests + 6 reminder/calendar tests
 npm run balance    # simulate heroes of different consistency (XP/level tuning)
 ```
 
@@ -53,6 +53,8 @@ Your data lives in the browser's storage. Clearing site data, switching browsers
 - **Healthy limits**: oversleeping earns nothing, exercise XP is capped at 90 min/day, learning at 180 effective min/day, passive study counts half, side quests are capped at 3/day, the screen limit can be tightened but never loosened past 4 h. No weight/calorie tracking; hours worked are never tracked.
 - **Bosses**: a new boss every **Sunday** (weeks run Sun–Sat). Objectives are counts, so one bad day can't sink the week. Finish all but one for a "Valiant" consolation.
 - **Gold**: 1 earned XP = 1 gold. The shop is for optional treats; spending never lowers your level, and rest is never gated.
+- **Look & feel**: 6 colour themes, 6 font pairings and 3 text sizes (Settings → Look & feel), applied instantly with no flash on load.
+- **Reminders**: set your own times; send them to Google Calendar (daily until 13 Nov 2027) or any calendar via .ics. A "due now" card on the home screen nudges you and vanishes once the task is done. (A website can't reliably fire timed alerts while closed — calendar alerts can.)
 - Weekly quests, monthly challenges (scaled for the partial months at the start/end), 81 trophies (incl. 5 secret), a 7-region world map, evening + weekly reflections and a searchable journal.
 
 Levels: `XP to reach level L = 55 · (L−1)^1.8`. Simulated outcomes (see `npm run balance`): a rough year ≈ Warrior, average ≈ Elite, good ≈ Master, strong ≈ Grandmaster, near-perfect ≈ Legend.
@@ -65,7 +67,7 @@ src/
     checkin/              One-quest-at-a-time quick check-in  skills/ + skills/[id]/  Six skill trees
     battle/               Weekly boss                         achievements/  Trophy hall
     map/                  World map & regions                 reflect/ + journal/  Evening, weekly, history
-    rewards/  stats/  settings/  layout.tsx  globals.css (design system)
+    rewards/  stats/  settings/  reminders/  layout.tsx  globals.css (design system + themes)
   components/             AppShell (nav, toasts, level-up), QuestCard + Inputs, HeroCard, charts, ui kit
   lib/
     types.ts config.ts    Data model, defaults, tunable rules
