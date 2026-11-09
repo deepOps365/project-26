@@ -206,7 +206,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     const base = process.env.NEXT_PUBLIC_BASE_PATH || "";
     if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator && window.isSecureContext) {
-      navigator.serviceWorker.register(`${base}/sw.js`).catch(() => {});
+      const hadController = !!navigator.serviceWorker.controller;
+      let reloaded = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        // A new version just took over: refresh once so you're on it (skipped while you're typing — data is already saved).
+        const a = document.activeElement?.tagName;
+        if (!hadController || reloaded || a === "INPUT" || a === "TEXTAREA") return;
+        reloaded = true; location.reload();
+      });
+      navigator.serviceWorker.register(`${base}/sw.js`).then((reg) => {
+        document.addEventListener("visibilitychange", () => { if (!document.hidden) reg.update().catch(() => {}); });
+      }).catch(() => {});
     }
   }, []);
   useEffect(() => { setMore(false); window.scrollTo({ top: 0 }); }, [pathname]);

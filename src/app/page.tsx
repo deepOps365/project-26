@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { HeroCard } from "@/components/HeroCard";
 import { Icon } from "@/components/Icon";
 import { QuestCard } from "@/components/quest/QuestCard";
-import { Bar, Panel, Ring, SectionTitle } from "@/components/ui";
+import { Bar, Confirm, Panel, Ring, SectionTitle } from "@/components/ui";
 import { SKILLS } from "@/lib/content/skills";
 import { diffDays, fmtFull, fmtLong, weekStart } from "@/lib/dates";
 import { dayEvalFor, hasReflection as reflectionDone, weekInfoFor } from "@/lib/engine";
@@ -24,6 +25,7 @@ export default function Home() {
   const d = useGame((s) => s.derived);
   const today = useGame((s) => s.today);
   const ev = dayEvalFor(state, d, today);
+  const [askFresh, setAskFresh] = useState(false);
   const now = useNow();
   const hour = now.getHours();
   const due = dueNow(state.reminders, now, (t) =>
@@ -54,13 +56,17 @@ export default function Home() {
       </div>
 
       {until > 0 && (
-        <Panel className="border-azure-500/30 flex gap-3 items-start">
-          <Icon name="map" size={20} className="text-azure-400 mt-0.5 shrink-0" />
-          <div className="text-sm text-mist">
-            <b className="text-parchment">The journey begins in {until} day{until === 1 ? "" : "s"}</b> — {fmtFull(state.settings.startDate)}. You can practise freely now; when Day 1 arrives, use <Link className="text-gold-300 underline" href="/settings/#danger">Settings → Start fresh</Link> for a clean slate.
+        <Panel className="border-azure-500/30 space-y-3">
+          <div className="flex gap-3 items-start">
+            <Icon name="map" size={20} className="text-azure-400 mt-0.5 shrink-0" />
+            <div className="text-sm text-mist">
+              <b className="text-parchment">The journey begins in {until} day{until === 1 ? "" : "s"}</b> — {fmtFull(state.settings.startDate)}. Practise freely now; when Day 1 arrives, clear the practice data for a clean slate.
+            </div>
           </div>
+          <button className="btn btn-sm w-full" onClick={() => setAskFresh(true)}><Icon name="reset" size={14} />Start fresh (clear practice data)</button>
         </Panel>
       )}
+      <Confirm open={askFresh} danger title="Start fresh?" body="All logged days, tasks, books, reflections and claimed rewards will be cleared. Your settings, look and shop stay. You can export a backup first from Settings." confirmLabel="Start fresh" onConfirm={() => useGame.getState().resetProgress()} onClose={() => setAskFresh(false)} />
 
       {due && (
         <Link href={targetPath(due.target)} className="block animate-rise">

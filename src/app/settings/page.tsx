@@ -103,6 +103,14 @@ export default function Settings() {
         {JUMPS.map(([id, label]) => <button key={id} className="chip shrink-0" onClick={() => jump(id)}>{label}</button>)}
       </div>
 
+      <Panel className="flex items-center gap-3.5 border-blood-500/30">
+        <div className="min-w-0 flex-1">
+          <div className="font-display text-[15px]">Starting your real journey?</div>
+          <div className="text-xs text-fog">Clears practice logs, tasks and books. Keeps your settings, look and shop.</div>
+        </div>
+        <button className="btn btn-danger shrink-0" onClick={() => setConfirm("fresh")}>Start fresh</button>
+      </Panel>
+
       <Fold id="look" icon="palette" title="Look & feel" summary={`${THEMES.find((t) => t.id === state.settings.theme)?.name} · ${FONTS.find((f) => f.id === state.settings.font)?.name}`} open={open.has("look")} onToggle={() => toggle("look")}>
         <div className="space-y-6">
           <div>

@@ -53,19 +53,26 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  if (req.mode === "navigate") {
-    // network-first so updates arrive quickly; fall back to the cached page when offline
+  // Hashed build files (/_next/static/…) never change for a given URL → safe to serve from cache first.
+  if (url.pathname.includes("/_next/static/")) {
     e.respondWith(
-      fetch(req).then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return res; })
-        .catch(() => caches.match(req).then((r) => r || caches.match(req, { ignoreSearch: true })).then((r) => r || caches.match(BASE + "/")))
+      caches.match(req).then((hit) => hit || fetch(req).then((res) => {
+        if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
+        return res;
+      }))
     );
     return;
   }
+
+  // Everything else (pages, page data, manifest, icons) is network-first so an update is never hidden behind
+  // a stale copy; the cache is the offline fallback. A 4s timeout keeps a bad connection from hanging the app.
+  const fresh = new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error("timeout")), 4000);
+    fetch(req).then((res) => { clearTimeout(t); resolve(res); }, (err) => { clearTimeout(t); reject(err); });
+  });
   e.respondWith(
-    caches.match(req).then((hit) => hit || fetch(req).then((res) => {
-      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
-      return res;
-    }))
+    fresh.then((res) => { if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); } return res; })
+      .catch(() => caches.match(req).then((r) => r || (req.mode === "navigate" ? caches.match(req, { ignoreSearch: true }).then((x) => x || caches.match(BASE + "/")) : undefined)))
   );
 });
 `;
