@@ -12,6 +12,7 @@ import { Modal, cx } from "./ui";
 
 const NAV = [
   { href: "/", label: "Hero", icon: "home" },
+  { href: "/guide/", label: "How to play", icon: "bookopen" },
   { href: "/quests/", label: "Quests", icon: "scroll" },
   { href: "/skills/", label: "Skills", icon: "sparkles" },
   { href: "/battle/", label: "Battle", icon: "swords" },

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { DailyGoalBar } from "@/components/GoalsCard";
 import { Icon } from "@/components/Icon";
 import { DateStrip } from "@/components/quest/DateStrip";
 import { QuestCard } from "@/components/quest/QuestCard";
@@ -114,6 +115,7 @@ export default function QuestsPage() {
             </div>
             <div className="text-right shrink-0"><div className="font-display text-xl gold-text tabular">+{dayXp}</div><div className="text-[10px] text-fog tracking-widest">XP THIS DAY</div></div>
           </Panel>
+          <Panel><DailyGoalBar date={date} /></Panel>
           <div className="space-y-3">{SKILL_IDS.map((k) => <QuestCard key={`${k}-${date}`} skill={k} date={date} />)}</div>
           <Link href="/checkin/" className="btn btn-gold w-full"><Icon name="zap" size={16} />Quick check-in — one at a time</Link>
         </>

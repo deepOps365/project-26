@@ -271,18 +271,11 @@ export default function Settings() {
         )}
       </Fold>
 
-      <Fold id="how" icon="scroll" title="How the rules work" summary="XP, streaks, shield, limits" open={open.has("how")} onToggle={() => toggle("how")}>
-        <ul className="space-y-2.5 text-sm text-mist">
-          {[
-            ["Nothing is claimed", "XP is always calculated from what you logged. Fix a mistake and the XP corrects itself; you can never get paid twice."],
-            ["Minimums & partial credit", "Reaching a quest's minimum earns full XP. Reaching half earns 40% — hard days still count."],
-            ["Days kept & the shield", `A day is kept with ${cfg.targets.streakQuests}+ quests. One missed day per week is shielded and never breaks your streak. Return after 2+ days away for a comeback bonus.`],
-            ["Healthy limits", "Oversleeping, 90+ minutes of exercise and marathon study days don't earn extra. Passive study counts half. Screen limits can be tightened, never loosened past 4 hours."],
-            ["Bosses", "Every Sunday a new boss arrives (weeks run Sun–Sat). Objectives are counts — consistency wins, perfection isn't required."],
-            ["Gold", "1 earned XP = 1 gold. Spending gold on treats never lowers your level."],
-          ].map(([t, b]) => <li key={t} className="flex gap-3"><Icon name="sparkles" size={15} className="text-gold-400 mt-1 shrink-0" /><span><b className="text-parchment">{t}.</b> {b}</span></li>)}
-        </ul>
-      </Fold>
+      <Link href="/guide/" className="panel flex items-center gap-3.5 p-4">
+        <span className="w-10 h-10 rounded-xl grid place-items-center shrink-0" style={{ background: "color-mix(in srgb, var(--color-gold-400) 12%, transparent)", color: "var(--color-gold-400)" }}><Icon name="bookopen" size={19} /></span>
+        <span className="min-w-0 flex-1"><span className="block font-display text-[15px]">How to play</span><span className="block text-xs text-fog truncate">Every rule explained, with your live numbers</span></span>
+        <Icon name="right" size={16} className="text-fog" />
+      </Link>
 
       <Fold id="danger" icon="warn" tone="danger" title="Reset · Start fresh" summary="Clear practice data on Day 1, or erase everything" open={open.has("danger")} onToggle={() => toggle("danger")}>
         <div className="space-y-4">

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { GoalsCard } from "@/components/GoalsCard";
 import { HeroCard } from "@/components/HeroCard";
 import { Icon } from "@/components/Icon";
 import { QuestCard } from "@/components/quest/QuestCard";
@@ -78,7 +79,19 @@ export default function Home() {
         </Link>
       )}
 
+      {d.stats.questsDone < 12 && (
+        <Link href="/guide/" className="block">
+          <Panel className="flex items-center gap-3 border-azure-500/30">
+            <Icon name="bookopen" size={20} className="text-azure-400 shrink-0" />
+            <div className="flex-1 text-sm"><b>New here? Read how to play</b> <span className="text-mist">— 2 minutes, every rule in plain words.</span></div>
+            <Icon name="right" size={16} className="text-fog" />
+          </Panel>
+        </Link>
+      )}
+
       <HeroCard />
+
+      <GoalsCard />
 
       {gap >= 2 && !ev.kept && (
         <Panel className="border-jade-500/30 flex gap-3 items-start">

@@ -8,7 +8,7 @@
     "serve": "node scripts/serve.mjs",
     "phone": "npm run build && npm run serve",
     "icons": "node scripts/gen-icons.mjs",
-    "test": "tsx scripts/test-engine.ts && tsx scripts/test-reminders.ts",
+    "test": "tsx scripts/test-engine.ts && tsx scripts/test-reminders.ts && tsx scripts/test-goals.ts",
     "balance": "tsx scripts/balance.ts",
     "typecheck": "tsc --noEmit"
   },

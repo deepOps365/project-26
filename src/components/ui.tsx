@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, type CSSProperties, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
 
 export const cx = (...a: (string | false | null | undefined)[]) => a.filter(Boolean).join(" ");
@@ -108,26 +109,29 @@ export function Modal({ open, onClose, title, children, wide, footer }: {
     if (el && !el.contains(document.activeElement)) el.focus();
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
   }, [open]);
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center" role="dialog" aria-modal="true" aria-labelledby={title ? id : undefined}>
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-[pop_.2s_ease-out]" onClick={onClose} />
+  if (!open || typeof document === "undefined") return null;
+  // Rendered into <body> through a portal. Without this, a dialog opened from inside a page lives in the page's
+  // stacking context and the fixed bottom navigation bar paints OVER its buttons on phones.
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      style={{ paddingTop: "max(1rem, env(safe-area-inset-top))", paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+      role="dialog" aria-modal="true" aria-labelledby={title ? id : undefined}
+    >
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm animate-[pop_.2s_ease-out]" onClick={onClose} />
       <div
         ref={ref} tabIndex={-1}
-        className={cx(
-          "relative panel panel-gold w-full max-h-[88dvh] overflow-y-auto rounded-b-none sm:rounded-b-[1.1rem] animate-[rise_.28s_ease-out] outline-none",
-          wide ? "sm:max-w-2xl" : "sm:max-w-md",
-        )}
-        style={{ paddingBottom: "calc(1.25rem + var(--safe-b))" }}
+        className={cx("relative panel panel-gold w-full max-h-full overflow-y-auto animate-[pop_.25s_ease-out] outline-none pb-5", wide ? "max-w-2xl" : "max-w-md")}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-5 pt-4 pb-3 bg-gradient-to-b from-[#1b1710] to-transparent">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-5 pt-4 pb-3 bg-gradient-to-b from-ink-800 via-ink-800/90 to-transparent">
           <h3 id={id} className="font-display text-lg gold-text">{title}</h3>
           <button onClick={onClose} className="btn btn-icon btn-sm" aria-label="Close"><Icon name="x" size={16} /></button>
         </div>
         <div className="px-5 pb-1">{children}</div>
         {footer && <div className="px-5 pt-3 flex gap-2 justify-end flex-wrap">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
